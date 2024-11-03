@@ -44,6 +44,6 @@ public class main {
                 e.printStackTrace();
             }
             return price;
-
     }
+    
 }
