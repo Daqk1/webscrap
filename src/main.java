@@ -4,11 +4,25 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.openqa.selenium.By;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Scanner;
+import java.util.HashMap;
+import java.util.*;
 
 public class main {
     public static void main(String[] args) {
-        System.out.println("Prices: $" + getPrice("https://www.pricecharting.com/game/pokemon-evolving-skies/sylveon-vmax-212?q=sylveon+vmax+%23212"));
+        HashMap<String, Double> pokemonPrice = new HashMap<String, Double>();
+        //collect the user input
+        String selectedPokemon = "Sylveon";
+        //user input
+        double priceOfSelectedPokemon = getPrice("https://www.pricecharting.com/game/pokemon-evolving-skies/sylveon-vmax-212?q=sylveon+vmax+%23212"); 
+        //this would be the string selectedPokemon
+        pokemonPrice.put(selectedPokemon, priceOfSelectedPokemon);
+        double total = 0;
+        for(double price: pokemonPrice.values()){
+            total += price;
+        }
+        System.out.println("Total: $" + total);
     }
 
     public static double getPrice(String pokemonName){
@@ -28,7 +42,6 @@ public class main {
             price = Double.parseDouble(firstPrice);
             }catch (Exception e) {
                 e.printStackTrace();
-
             }
             return price;
 
