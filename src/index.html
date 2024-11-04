@@ -1,39 +1,43 @@
 <!DOCTYPE html>
-<html>
-    <head>
-      <title> Pokemon Collection</title>
-      <meta name = "desciption" content = "Online colleciton system that calculates your prices and change.">
-      <link rel = "stylesheet" href = "style.css">   
-    </head>
-    <body>
-        <!--main container-->
-        <div class="main-container">
-            <!--Left Container-->
-            <div class = "form-section">
-                <form id="pokemonForm">
-            <h1  class="borders">Pokemon Collection</h1>  
-            <div class="form-container borders">
-            <h2><span>Card Adding</span></h2>
-                <section >
-                    <form>
-                        <label> Pokemon Name</label>
-                        <input  name = "Pokemon Name"><br><br>
-                        <label for="pokemonSet">Pokemon Set</label>
-                        <select id="pokemonSet" name="pokemonSet">
-                            <option value="evolving-skies">Evolving Skies</option>
-                            <option value="base-set">Base Set</option>
-                            <option value="hidden-fates">Hidden Fates</option>
-                            <option value="shining-legends">Shining Legends</option>
-                        </select>
-                        <br><br>
-                        <a href="collect.html">Current Collection</a>
-                    </form>
-                </section>       
-            </div>
+<html lang="en">
+<head>
+    <title>Pokemon Collection</title>
+    <meta name="description" content="Online collection system that calculates your prices and change.">
+    <link rel="stylesheet" href="style.css">   
+</head>
+<body>
+    <!-- Main container -->
+    <div class="main-container">
+        <!-- Left Container -->
+        <div class="form-section">
+            <h1 class="borders">Adding Cards</h1>
+            <form id="pokemonForm"class="form-container borders">
+                <label> Pokemon Name</label>
+                <input type="text" id="pokemonName" name="pokemonName">
+                <br><br>
+                <label for="pokemonSet">Pokemon Set</label>
+                <select id="pokemonSet" name="pokemonSet">
+                    <option value="">--Select Set--</option>
+                    <option value="evolving-skies">Evolving Skies</option>
+                    <option value="base-set">Base Set</option>
+                    <option value="hidden-fates">Hidden Fates</option>
+                    <option value="shining-legends">Shining Legends</option>
+                </select>
+                <br><br>
+                <button onclick=displaySelection(event)>Search</button>
+                <br><br>
+                <div class = "selected borders">
+                    <p id="output"></p>
+                </div>
+            </form>
+
+                        <br>
+                        <br>
+                        <a href="collect.html">Current Collection</a> 
+                </div>   
         </div>
-    </form>
-        <!--Pokemon card images-->
-       
     </div>
-    </body>
+
+    <script src="script.js"></script>
+</body>
 </html>

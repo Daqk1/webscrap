@@ -4,8 +4,8 @@
     box-sizing: border-box;
 }
 body {
-    display: flex; /* Use flexbox for main layout */
-    justify-content: space-between; /* Distribute space evenly */
+    display: flex; 
+    justify-content: space-between; 
 }
 .borders {
     margin:5px;
@@ -15,7 +15,7 @@ body {
     line-height: 1.5;
     background-color: beige;
     color: black;
-    width: 400px; /* Adjust as needed */
+    width: 400px; 
     font-size: 1.5rem;
     padding: 0.5em;
 }
@@ -39,11 +39,11 @@ body {
     display: grid;
     grid-template-columns: repeat(7, 1fr); 
     gap: 5px; 
-    width: 100%; /* Adjust width to align with the borders section */
+    width: 100%; 
     padding: 5px;
     overflow-y: auto;
     max-height: 600px; 
-    margin: 0; /* No additional margin */
+    margin: 0; 
 }
 
 .images {
@@ -51,4 +51,10 @@ body {
     width: 100%; 
     height: auto;
     margin: 0;
+}
+
+.selected{
+    border: 2 dotted red;
+    width: 1 rem;
+    font-size: 32px;
 }
