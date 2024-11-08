@@ -1,4 +1,4 @@
-function displaySelection() {
+function displaySelection(event) {
     event.preventDefault();
     const pokemonNameInput = document.getElementById("pokemonName");
     const pokemonName = pokemonNameInput.value;
