@@ -9,9 +9,13 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.time.Duration;
 import java.util.*;
+
+
 
 public class back { 
     public static void main(String[] args) {
@@ -296,4 +300,3 @@ public class back {
     }
 }
 
-//ISSUE, THIS SHIT AINT LOADING
