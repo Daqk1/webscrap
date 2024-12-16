@@ -9,9 +9,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Writer;
 import java.time.Duration;
 import java.util.*;
 
@@ -20,10 +18,10 @@ import java.util.*;
 public class back { 
     public static void main(String[] args) {
         //collect the user input
-        String [] selectedPokemon = {"Vaporeon"};
+        String [] selectedPokemon = {"Giratina"};
         //user input
         ArrayList<ArrayList<String>> eachSelectedPokemonURL = new ArrayList<ArrayList<String>>();
-        String setName = "evolving-skies";
+        String setName = "crown-zenith";
         Document setDoc = loadPageWithSelenium(changeURL(setName));
         if(selectedPokemon.length < 1 && setName.length() > 1){
                 eachSelectedPokemonURL.add(getAllCardsInASet(setDoc, setName)); //each pokemon in the pokemon catagory
@@ -254,7 +252,7 @@ public class back {
     }
     public static Document loadPageWithSelenium(String url) {
         // Set path to chromedriver
-        System.setProperty("webdriver.chrome.driver", "chromedriver-win64 (1)\\chromedriver-win64\\chromedriver.exe");
+        System.setProperty("webdriver.chrome.driver", "webscrap\\lib\\chromedriver-win64 (1)");
 
         WebDriver driver = new ChromeDriver();
         Document doc = null; // Document to return
@@ -300,3 +298,4 @@ public class back {
     }
 }
 
+//very character dependent

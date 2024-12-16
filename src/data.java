@@ -17,7 +17,8 @@ import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.*;
 
-public class data {
+
+public class data implements Runnable {
     private String setName;
     private String DATA_FILE = "card_data.json"; // File to save/load card data
     public static void main(String[] args) {
@@ -136,7 +137,7 @@ public class data {
 
     public static Document loadPage(String url) {
         // Set path to chromedriver
-        System.setProperty("webdriver.chrome.driver", "chromedriver-win64 (1)\\chromedriver-win64\\chromedriver.exe");
+        System.setProperty("webdriver.chrome.driver", "webscrap\\lib\\chromedriver-win64 (1)");
 
         WebDriver driver = new ChromeDriver();
         Document doc = null; // Document to return
@@ -156,7 +157,7 @@ public class data {
                 js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
 
                 // Wait for new content to load
-                Thread.sleep(20);  // Adjust time depending on how long the page takes to load more content
+                Thread.sleep(100);  // Adjust time depending on how long the page takes to load more content
 
                 // Check if new content has been loaded. This could depend on the website, but for now we'll assume the presence of a specific element.
                 wait.until(ExpectedConditions.presenceOfElementLocated(By.tagName("title")));
@@ -164,7 +165,7 @@ public class data {
 
                 // Check if new items are loaded by comparing the previous state with the current state
                 // If new items are not loaded, exit the loop
-                if (i == 20) {
+                if (i == 10) {
                     moreItemsLoaded = false;
                 }
             }
@@ -183,9 +184,9 @@ public class data {
 
     // Save card data to a JSON file
     public void saveCardData(List<Card> cards) {
-        DATA_FILE = setName + ".json";
+        DATA_FILE = "pokemon_data/"+ setName + ".json";
 
-        try (Writer writer = new FileWriter(DATA_FILE)) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(DATA_FILE))) {
             Gson gson = new Gson();
             gson.toJson(cards, writer);
             System.out.println("Card data saved to " + DATA_FILE);
@@ -231,3 +232,4 @@ public class data {
         setName = set;
     }
 }
+
