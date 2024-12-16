@@ -20,7 +20,7 @@ import java.util.*;
 public class back { 
     public static void main(String[] args) {
         //collect the user input
-        String [] selectedPokemon = {};
+        String [] selectedPokemon = {"Vaporeon"};
         //user input
         ArrayList<ArrayList<String>> eachSelectedPokemonURL = new ArrayList<ArrayList<String>>();
         String setName = "evolving-skies";
@@ -274,7 +274,7 @@ public class back {
                 js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
 
                 // Wait for new content to load
-                Thread.sleep(100);  // Adjust time depending on how long the page takes to load more content
+                Thread.sleep(20);  // Adjust time depending on how long the page takes to load more content
 
                 // Check if new content has been loaded. This could depend on the website, but for now we'll assume the presence of a specific element.
                 wait.until(ExpectedConditions.presenceOfElementLocated(By.tagName("title")));

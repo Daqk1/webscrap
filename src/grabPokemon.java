@@ -113,15 +113,13 @@ public class grabPokemon {
             "paradox-rift"
         };
 
-        ExecutorService executor = Executors.newFixedThreadPool(10); // 10 threads in pool
+        
 
         for (int i = 0; i < pokemonSets.length; i++) {        
             data set = new data();
             set.setSetName(pokemonSets[i]);
-            executor.execute(set.run()); // Submit task to thread pool
+            set.run();
         }
-
-        executor.shutdown(); // Shutdown the executor after submitting tasks
 
     }
 }
