@@ -31,9 +31,16 @@ body {
 .form-container {
     width: 70% auto; 
 }
+
 .form-section {
-    display: flex;
-    flex-direction: column;
+    position: sticky; /* Make the container sticky */
+    top: 20px; /* Distance from the top of the viewport */
+    height: fit-content; /* Ensure the section size is based on content */
+    background-color: #f9f9f9; /* Light background for clarity */
+    border: 1px solid #ddd; 
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
 }
 .image-container {
     display: grid;
@@ -42,8 +49,7 @@ body {
     width: 100%; 
     padding: 5px;
     overflow-y: auto;
-    max-height: 600px; 
-    margin: 0; 
+    margin: 10; 
 }
 
 .images {
@@ -58,3 +64,83 @@ body {
     width: 1 rem;
     font-size: 32px;
 }
+/* Parent container for cards */
+.cards-container {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr); 
+    gap: 20px; 
+    width: 100%; 
+    padding: 20px;
+    overflow-y: auto;
+    margin: 10; 
+    justify-items: center;
+}
+
+    .card {
+        width: 150px;
+        height: 300px;
+        margin: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between; /* Align the content inside the card */
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+        text-align: center;
+    }
+
+    .card img {
+        max-width: 100%;
+        max-height: 150px; /* Adjust based on your preferred size */
+        object-fit: contain;
+        margin-bottom: 10px; /* Space below the image */
+    }
+
+    .card h3 {
+        font-size: 14px;
+        margin: 0;
+        padding: 5px;
+        background-color: #ececec; /* Light background to separate the name */
+        border-radius: 4px;
+        width: 100%;
+        top: 250px;
+    }
+
+    .card p {
+        font-size: 12px;
+        margin: 0;
+        padding: 5px;
+        background-color: #f0f0f0; /* Light background for price */
+        border-radius: 4px;
+        width: 100%;
+        margin-bottom: 10px; /* Space between price and link */
+        top: 250px;
+    }
+
+    .card a {
+        font-size: 12px;
+        text-decoration: none;
+        color: #007bff;
+        padding: 5px;
+        background-color: #f0f0f0;
+        border-radius: 4px;
+        display: inline-block;
+        top: 250px;
+    }
+
+    .card a:hover {
+        text-decoration: underline;
+    }
+
+    .card .info-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+    }
+
+
+

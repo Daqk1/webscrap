@@ -7,8 +7,10 @@ import org.jsoup.select.Elements;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.io.*;
@@ -21,6 +23,7 @@ import java.util.concurrent.*;
 public class data implements Runnable {
     private String setName;
     private String DATA_FILE = "card_data.json"; // File to save/load card data
+    private int i;
     public static void main(String[] args) {
     }
 
@@ -34,16 +37,17 @@ public class data implements Runnable {
             // Use multithreading to fetch data
             ExecutorService executor = Executors.newFixedThreadPool(10);
             List<Card> fetchedCards = Collections.synchronizedList(new ArrayList<>());
-
+            i = 0;
             ArrayList<String> allCardURLs = getAllCardsInASet(setDoc, setName);
-
             for (String url : allCardURLs) {
                 executor.submit(() -> {
                     try {
                         String name = getAllTheNames(url,setName);
                         double price = getCardPrice(url);
-                        fetchedCards.add(new Card(name, price, url));
-                        System.out.println("Fetched: " + name + " | $" + price);
+                        String picture = getPicture(url);
+                        fetchedCards.add(new Card(name, price, url, i, picture));
+                        i++;
+                        System.out.println("Fetched: " + name + " | $" + price + " | " + i + " | " + picture);
                     } catch (Exception e) {
                         System.out.println("Error fetching card at: " + url);
                     }
@@ -134,10 +138,17 @@ public class data implements Runnable {
         }
         return 0.0;
     }
-
-    public static Document loadPage(String url) {
+    public static String getPicture(String url) throws IOException{
+        Document doc = Jsoup.connect(url).get();
+        Element docName = doc.selectFirst(".chart_title");
+        String name = docName.text();
+        Element pictureElement = doc.selectFirst("img[alt='" + name + "']");
+        String imageUrl = pictureElement.attr("src");
+        return imageUrl;
+    }
+        public static Document loadPage(String url) {
         // Set path to chromedriver
-        System.setProperty("webdriver.chrome.driver", "webscrap\\lib\\chromedriver-win64 (1)");
+        System.setProperty("webdriver.chrome.driver", "webscrap\\lib\\chromedriver-win64 (1)\\chromedriver-win64\\chromedriver.exe");
 
         WebDriver driver = new ChromeDriver();
         Document doc = null; // Document to return
@@ -148,6 +159,12 @@ public class data implements Runnable {
 
             // Wait for the page to fully load (adjust condition if needed)
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(100));
+            WebElement order = driver.findElement(By.id("sortForm"));
+            Select select = new Select(order);
+            select.selectByVisibleText("Popularity");
+            WebElement imageOrNot = driver.findElement(By.name("show-images"));
+            Select noImage = new Select(imageOrNot);
+            noImage.selectByVisibleText("Hide Images");
             boolean moreItemsLoaded = true;
             int i = 0;
             while (moreItemsLoaded) {
@@ -161,7 +178,6 @@ public class data implements Runnable {
 
                 // Check if new content has been loaded. This could depend on the website, but for now we'll assume the presence of a specific element.
                 wait.until(ExpectedConditions.presenceOfElementLocated(By.tagName("title")));
-                wait.until(ExpectedConditions.presenceOfElementLocated(By.tagName("tbody")));
 
                 // Check if new items are loaded by comparing the previous state with the current state
                 // If new items are not loaded, exit the loop
@@ -184,8 +200,7 @@ public class data implements Runnable {
 
     // Save card data to a JSON file
     public void saveCardData(List<Card> cards) {
-        DATA_FILE = "pokemon_data/"+ setName + ".json";
-
+        DATA_FILE = "webscrap/pokemon_data/"+ setName + ".json";
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(DATA_FILE))) {
             Gson gson = new Gson();
             gson.toJson(cards, writer);
@@ -212,11 +227,14 @@ public class data implements Runnable {
         private String name;
         private double price;
         private String url;
-
-        public Card(String name, double price, String url) {
+        private int number;
+        private String picture;
+        public Card(String name, double price, String url, int number, String picture) {
             this.name = name;
             this.price = price;
             this.url = url;
+            this.number = number;
+            this.picture = picture;
         }
 
         public double getPrice() {
@@ -225,7 +243,22 @@ public class data implements Runnable {
 
         @Override
         public String toString() {
-            return name + " - $" + price;
+            return "Card{" +
+                    "name='" + name + '\'' +
+                    ", price=" + price +
+                    ", url='" + url + '\'' +
+                    ", number=" + number +
+                    ", picture='" + picture + '\'' +
+                    '}';
+        }
+        public String getPicture(){
+            return picture;
+        }
+        public int getNumber(){
+            return number;
+        }
+        public String getUrl(){
+            return url;
         }
     }
     public void setSetName(String set){
