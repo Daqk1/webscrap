@@ -17,9 +17,7 @@ import java.util.*;
 
 public class back { 
     public static void main(String[] args) {
-        //collect the user input
         String [] selectedPokemon = {"Giratina"};
-        //user input
         ArrayList<ArrayList<String>> eachSelectedPokemonURL = new ArrayList<ArrayList<String>>();
         String setName = "crown-zenith";
         Document setDoc = loadPageWithSelenium(changeURL(setName));
@@ -40,12 +38,11 @@ public class back {
         for (Map.Entry<ArrayList<String>, ArrayList<Double>> entry : bothPriceAndName.entrySet()) {
             ArrayList<String> names = entry.getKey();  // Get the list of names
             ArrayList<Double> prices = entry.getValue(); // Get the list of prices
-            // Print the names and corresponding prices
             for (int i = 0; i < names.size(); i++) {
                 String name = names.get(i);
                 Double price = prices.get(i);
                 System.out.println("Pokémon: " + name + " | Price: $" + price);
-                total += price;  // Add price to total
+                total += price;  
             }
         }
         System.out.println("Total: $" + total);
@@ -68,12 +65,11 @@ public class back {
         for (Map.Entry<ArrayList<String>, ArrayList<Double>> entry : bothPriceAndName.entrySet()) {
             ArrayList<String> names = entry.getKey();  // Get the list of names
             ArrayList<Double> prices = entry.getValue(); // Get the list of prices
-            // Print the names and corresponding prices
             for (int i = 0; i < names.size(); i++) {
                 String name = names.get(i);
                 Double price = prices.get(i);
                 System.out.println("Pokémon: " + name + " | Price: $" + price);
-                total += price;  // Add price to total
+                total += price;  
             }
         }
         System.out.println("Total: $" + total);
@@ -81,15 +77,15 @@ public class back {
         
     }
 
-    public static double getPrice(String setURL, String pokemonName, String setName){ //need it to load, so use Selenium . IDK HOW
+    public static double getPrice(String setURL, String pokemonName, String setName){ 
             // Fetch the HTML content from the URL
             double price = 0;
             try{
             Document pokemonDoc = Jsoup.connect(setURL).get(); 
             Elements prices = pokemonDoc.getElementsByClass("price js-price");
             // Select the price element
-            Element firstPriceElement = prices.first(); // Get the first price element
-            String firstPrice = firstPriceElement.text(); // Extract the text (price)
+            Element firstPriceElement = prices.first(); 
+            String firstPrice = firstPriceElement.text(); 
             if(firstPrice.equals("-")){
                 error(pokemonName, setName);
                 return 0;
@@ -111,8 +107,8 @@ public class back {
         Document pokemonDoc = Jsoup.connect(setURL).get(); 
         Elements prices = pokemonDoc.getElementsByClass("price js-price");
         // Select the price element
-        Element firstPriceElement = prices.first(); // Get the first price element
-        String firstPrice = firstPriceElement.text(); // Extract the text (price)
+        Element firstPriceElement = prices.first(); 
+        String firstPrice = firstPriceElement.text(); 
         if(firstPrice.equals("-")){
             System.out.println("Error " + setName);
             return 0;
@@ -160,7 +156,7 @@ public class back {
         Element tbody = doc.select("tbody").first();
         Elements name = tbody.getElementsByClass("title");
         for (Element pName : name) {
-            String temp = pName.text(); // Extract text from the element //I NEED THIS SOMEWHERE!
+            String temp = pName.text(); 
             getPriceURL = cPokemon(temp, setName);
             similarPokemonURL.add(getPriceURL);
         }
@@ -216,7 +212,7 @@ public class back {
                 }
             }
         }
-                    // Now get the text of the <h1> without the <a> tag
+                    
     }catch (IOException e) {
         System.out.println("Error while connecting to set URL for " + pokemonName);
     }
@@ -244,7 +240,7 @@ public class back {
                 }
             }
         }
-                    // Now get the text of the <h1> without the <a> tag
+                  
     }catch (IOException e) {
         System.out.println("Error while connecting to set URL for " + setName);
     }
@@ -258,44 +254,35 @@ public class back {
         Document doc = null; // Document to return
          
         try {
-            // Open the URL with Selenium
             driver.get(url);
 
-            // Wait for the page to fully load (adjust condition if needed)
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(100));
             boolean moreItemsLoaded = true;
             int i = 0;
             while (moreItemsLoaded) {
                 i++;
-                // Scroll to the bottom of the page using JavaScript
                 JavascriptExecutor js = (JavascriptExecutor) driver;
                 js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
 
-                // Wait for new content to load
                 Thread.sleep(20);  // Adjust time depending on how long the page takes to load more content
 
-                // Check if new content has been loaded. This could depend on the website, but for now we'll assume the presence of a specific element.
                 wait.until(ExpectedConditions.presenceOfElementLocated(By.tagName("title")));
                 wait.until(ExpectedConditions.presenceOfElementLocated(By.tagName("tbody")));
 
-                // Check if new items are loaded by comparing the previous state with the current state
-                // If new items are not loaded, exit the loop
                 if (i == 20) {
                     moreItemsLoaded = false;
                 }
             }
-            // Get page source and parse it using Jsoup
             String pageSource = driver.getPageSource();
-            doc = Jsoup.parse(pageSource); // Convert page source into Jsoup Document
+            doc = Jsoup.parse(pageSource); 
 
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            // Close the browser
+          
             driver.quit();
         }
-        return doc; // Return the parsed Document
+        return doc; 
     }
 }
 
-//very character dependent

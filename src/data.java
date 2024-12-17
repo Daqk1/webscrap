@@ -30,7 +30,7 @@ public class data implements Runnable {
     public void run(){
         List<Card> cards = loadCardData();
 
-        if (cards.isEmpty()) { // If no data exists, fetch from the website
+        if (cards.isEmpty()) {
             System.out.println("No saved data found. Fetching from website...");
             Document setDoc = loadPage(changeURL(setName));
 
@@ -54,22 +54,18 @@ public class data implements Runnable {
                 });
             }
 
-            // Shutdown and wait for tasks to finish
             executor.shutdown();
             try {
                 executor.awaitTermination(5, TimeUnit.MINUTES);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-
-            // Save fetched data to file
             saveCardData(fetchedCards);
             cards = fetchedCards;
         } else {
             System.out.println("Loaded saved card data.");
         }
 
-        // Calculate and display the total price
         double total = cards.stream().mapToDouble(Card::getPrice).sum();
         System.out.println("Total Price: $" + total);
     }
@@ -103,26 +99,20 @@ public class data implements Runnable {
     public static String getAllTheNames(String setURL, String setName){
         String temp = "";
         try{
-        Document setDoc = Jsoup.connect(setURL).get(); //some error here maybe
+        Document setDoc = Jsoup.connect(setURL).get(); 
         Elements name = setDoc.getElementsByClass("chart_title");
         if (!name.isEmpty()) {
-            // Loop through all elements with class "chart_title" (if there are multiple)
             for (Element chartTitle : name) {
-                // Get the <h1> tag
                 Element h1 = chartTitle.select("h1").first();
                 if (h1 != null) {
-                    // Select the <a> tag inside the <h1>
                     Element a = h1.select("a").first();
-                    // If there's an <a> tag, remove it from the <h1> content
                     if (a != null) {
-                        // Remove the <a> tag from the <h1> content
                         a.remove();
                     }
                     temp = h1.text();
                 }
             }
         }
-                    // Now get the text of the <h1> without the <a> tag
     }catch (IOException e) {
         System.out.println("Error while connecting to set URL for " + setName);
     }
@@ -151,13 +141,11 @@ public class data implements Runnable {
         System.setProperty("webdriver.chrome.driver", "webscrap\\lib\\chromedriver-win64 (1)\\chromedriver-win64\\chromedriver.exe");
 
         WebDriver driver = new ChromeDriver();
-        Document doc = null; // Document to return
+        Document doc = null; 
 
         try {
-            // Open the URL with Selenium
             driver.get(url);
 
-            // Wait for the page to fully load (adjust condition if needed)
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(100));
             WebElement order = driver.findElement(By.id("sortForm"));
             Select select = new Select(order);
@@ -169,36 +157,28 @@ public class data implements Runnable {
             int i = 0;
             while (moreItemsLoaded) {
                 i++;
-                // Scroll to the bottom of the page using JavaScript
                 JavascriptExecutor js = (JavascriptExecutor) driver;
                 js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
 
-                // Wait for new content to load
-                Thread.sleep(100);  // Adjust time depending on how long the page takes to load more content
+                Thread.sleep(100);  
 
-                // Check if new content has been loaded. This could depend on the website, but for now we'll assume the presence of a specific element.
                 wait.until(ExpectedConditions.presenceOfElementLocated(By.tagName("title")));
 
-                // Check if new items are loaded by comparing the previous state with the current state
-                // If new items are not loaded, exit the loop
                 if (i == 10) {
                     moreItemsLoaded = false;
                 }
             }
-            // Get page source and parse it using Jsoup
             String pageSource = driver.getPageSource();
-            doc = Jsoup.parse(pageSource); // Convert page source into Jsoup Document
+            doc = Jsoup.parse(pageSource); 
 
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            // Close the browser
             driver.quit();
         }
-        return doc; // Return the parsed Document
+        return doc;
     }
 
-    // Save card data to a JSON file
     public void saveCardData(List<Card> cards) {
         DATA_FILE = "webscrap/pokemon_data/"+ setName + ".json";
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(DATA_FILE))) {
@@ -211,7 +191,6 @@ public class data implements Runnable {
         }
     }
 
-    // Load card data from a JSON file
     public  List<Card> loadCardData() {
         try (Reader reader = new FileReader(DATA_FILE)) {
             Gson gson = new Gson();
@@ -222,7 +201,6 @@ public class data implements Runnable {
         }
     }
 
-    // Card class to store card data
     static class Card {
         private String name;
         private double price;
