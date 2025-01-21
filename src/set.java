@@ -45,7 +45,7 @@ public class set implements Runnable {
                         String picture = getPicture(url);
                         int cardId = getNextCardId();
                         fetchedCards.add(new Card(name, price, url, cardId, picture));
-                        System.out.println("Fetched: " + name + " | $" + price + " | " + cardId + " | " + picture);
+                        //System.out.println("Fetched: " + name + " | $" + price + " | " + cardId + " | " + picture);
                     } catch (Exception e) {
                         System.out.println("Error fetching card at: " + url + " | " + e.getMessage());
                     }
