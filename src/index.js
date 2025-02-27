@@ -1,4 +1,8 @@
-const number = 0;
+fetch('http://localhost:3000/get-json')
+    .then(response => response.json())
+    .then(data => console.log('JSON Data:', data))
+    .catch(error => console.error('Error fetching JSON:', error));
+
 
 function displayCards() {
     const setName = document.getElementById("pokemonSet").value; 
@@ -64,15 +68,15 @@ function displayCards() {
                 filteredCards.forEach(card => {
                     const cardDiv = document.createElement("div");
                     cardDiv.classList.add("card");
-
+                    const number = 0;
                     cardDiv.innerHTML = `
-                        <h3>${card.name}</h3>
-                        <img src="${card.picture}" alt="${card.name}" style="width: 150px; height: auto;">
+                        <h3 class = "${card.name}">${card.name}</h3>
+                        <img src="${card.picture}" alt="${card.name}" style="width: 200px; height: auto;">
                         <p>Price: $${card.price.toFixed(2)}</p>
                         <div class="b">
-                            <button class="minusButton" onclick="buttonCall(${card.number}, '${card.setName}')">-</button>
-                            <p class="binderNumber">${number}</p>
-                            <button class="addButton" id="add" onclick="buttonCall(${card.number}, '${card.setName}')">+</button>
+                            <button class="minusButton" onclick="buttonCallMinus(${card.number}, '${card.setName}', '${card.name}')">-</button>
+                            <p id="binderNumber">${number}</p>
+                            <button class="addButton" id="add" onclick="buttonCallAdd(${card.number}, '${card.setName}', '${card.name}')">+</button>
                         </div>
                         <hr>
                     `;
@@ -108,35 +112,59 @@ function fetchSetData(setName) {
 }
 
 
-// function buttonCall(pokemonNumber, set){
-//     fetch(`../pokemon_data/${setName}.json`)
-//         .then(response => {
-//             if (!response.ok) {
-//                 throw new Error('Network response was not ok');
-//             }
-//             return response.json();
-//         })
-//         .then(data => {
-//             if (data && Array.isArray(data)) {
+function buttonCallAdd(cardNumber, cardSet, cardName) {
+    const cards = document.querySelectorAll(".card");
 
-                
-//                 const filteredCards = data.filter(card => 
-//                     card.name.toLowerCase().includes(pokemonNumber));
+    cards.forEach(card => {
+        const title = card.querySelector("h3");
+        if (title && title.textContent.trim() === cardName) {
+            const binderNumberElement = card.querySelector("#binderNumber");
+
+            if (binderNumberElement) {
+                let currentCount = parseInt(binderNumberElement.textContent, 10) || 0;
+
+                binderNumberElement.textContent = currentCount + 1;
+            }
+        }
+    });
+    updateJsonFile();
+}
 
 
+function buttonCallMinus(cardNumber, cardSet, cardName) {
+    const cards = document.querySelectorAll(".card");
 
+    cards.forEach(card => {
+        const title = card.querySelector("h3");
+        if (title && title.textContent.trim() === cardName) {
+            const binderNumberElement = card.querySelector("#binderNumber");
 
+            if (binderNumberElement) {
+                let currentCount = parseInt(binderNumberElement.textContent, 10) || 0;
+                if(currentCount == 0){
+                    stop();
+                }else{
+                    binderNumberElement.textContent = currentCount - 1;
 
+                }
+            }
+        }
+    });
+    updateJsonFile();
+}
 
-//             } else {
-//                 throw new Error("Invalid data format.");
-//             }
-//         })
-//         .catch(error => {
-//             console.error('Error:', error);
-//             cardsOutput.innerHTML = `<p style="color: red;">Error loading cards: ${error.message}</p>`;
-//         });
-        
-    
-// }
+function updateJsonFile() {
+    fetch('http://localhost:3000/update-json', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ cardCount: 10 }) // Modify this data as needed
+    })
+    .then(response => response.json())
+    .then(data => console.log('Updated JSON:', data))
+    .catch(error => console.error('Error updating JSON:', error));
+}
 
+// Call the function to update JSON
+updateJsonFile();
