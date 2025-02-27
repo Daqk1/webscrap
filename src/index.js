@@ -1,9 +1,3 @@
-fetch('http://localhost:3000/get-json')
-    .then(response => response.json())
-    .then(data => console.log('JSON Data:', data))
-    .catch(error => console.error('Error fetching JSON:', error));
-
-
 function displayCards() {
     const setName = document.getElementById("pokemonSet").value; 
     const pokemonName = document.getElementById("pokemonName").value.toLowerCase(); 

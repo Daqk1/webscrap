@@ -45,7 +45,7 @@ public class set implements Runnable {
                         String picture = getPicture(url);
                         int cardId = getNextCardId();
                         fetchedCards.add(new Card(name, price, url, cardId, picture));
-                        //System.out.println("Fetched: " + name + " | $" + price + " | " + cardId + " | " + picture);
+                        System.out.println("Fetched: " + name + " | $" + price + " | " + cardId + " | " + picture);
                     } catch (Exception e) {
                         System.out.println("Error fetching card at: " + url + " | " + e.getMessage());
                     }
@@ -192,7 +192,7 @@ public class set implements Runnable {
 
     public static Document loadPage(String url) {
         // Set path to chromedriver
-        System.setProperty("webdriver.chrome.driver", "webscrap\\lib\\chromedriver-win64 (1)\\chromedriver-win64\\chromedriver.exe");
+        System.setProperty("webdriver.chrome.driver", "webscrap\\lib\\chromedriver-win64\\chromedriver-win64\\chromedriver.exe");
 
         WebDriver driver = new ChromeDriver();
         Document doc = null; 

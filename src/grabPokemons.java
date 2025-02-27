@@ -6,7 +6,7 @@ public class grabPokemons{
     public static void main(String[] args) {
         String[] pokemonSets = {
              "base-set",
-            "jungle",
+             "jungle",
               "fossil",
              "base-set-2",
              "team-rocket",
@@ -115,7 +115,7 @@ public class grabPokemons{
             "paradox-rift"
         };
       
-        ExecutorService executor = Executors.newFixedThreadPool(5); 
+        ExecutorService executor = Executors.newFixedThreadPool(2); 
         
         for (String setName : pokemonSets) {
             set set = new set(); 
