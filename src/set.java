@@ -260,33 +260,35 @@ public class set implements Runnable {
     }
 
     static class Card {
-        private String name;
-        private double price;
-        private String url;
-        private String picture;
-        private int id;
+        private String cardName;
+        private double cardPrice;
+        private String cardUrl;
+        private String cardPicture;
+        private int cardId;
+        private int cardNumberOfCards;
 
         public Card(String name, double price, String url, int id, String picture) {
-            this.name = name;
-            this.price = price;
-            this.url = url;
-            this.picture = picture;
-            this.id = id;
+            this.cardName = name;
+            this.cardPrice = price;
+            this.cardUrl = url;
+            this.cardPicture = picture;
+            this.cardId = id;
+            this.cardNumberOfCards = 0; // Default value, can be updated later if needed
         }
 
         public double getPrice() {
-            return price;
+            return cardPrice;
         }
 
         @Override
         public String toString() {
             return "Card{" +
-                    "cardName='" + name + '\'' +
-                    ", cardPrice=" + price +
-                    ", cardUrl='" + url + '\'' +
-                    ", cardId=" + id +
-                    ", cardPicture='" + picture + '\'' +
-                    ", cardNumberOfCards=" + 0 +
+                    "cardName='" + cardName + '\'' +
+                    ", cardPrice=" + cardPrice +
+                    ", cardUrl='" + cardUrl + '\'' +
+                    ", cardId=" + cardId +
+                    ", cardPicture='" + cardPicture + '\'' +
+                    ", cardNumberOfCards=" + cardNumberOfCards +
                     '}';
         }
     }
