@@ -6,6 +6,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.*;
 
 import java.io.*;
@@ -17,7 +18,7 @@ import java.util.concurrent.*;
 public class set implements Runnable {
     private String setName;
     private String DATA_FILE = "card_data.json";
-    private int globalCardId = 1;  // This will keep track of the card ID
+    private int globalCardId = 1; // This will keep track of the card ID
     private List<Card> fetchedCards;
 
     public static void main(String[] args) {
@@ -28,7 +29,7 @@ public class set implements Runnable {
 
         if (cards.isEmpty()) {
             System.out.println("No saved data found. Fetching from website...");
-            if(setName == "champion-27s-path"){
+            if (setName == "champion-27s-path") {
                 setName = "champion%27s-path";
             }
             Document setDoc = loadPage(changeURL(setName));
@@ -45,9 +46,11 @@ public class set implements Runnable {
                         String picture = getPicture(url);
                         int cardId = globalCardId++;
                         fetchedCards.add(new Card(name, price, url, cardId, picture));
-                        //System.out.println("Fetched: " + name + " | $" + price + " | " + cardId + " | " + picture);
+                        // System.out.println("Fetched: " + name + " | $" + price + " | " + cardId + " |
+                        // " + picture);
                     } catch (Exception e) {
-                        //System.out.println("Error fetching card at: " + url + " | " + e.getMessage());
+                        // System.out.println("Error fetching card at: " + url + " | " +
+                        // e.getMessage());
                     }
                 });
             }
@@ -80,42 +83,43 @@ public class set implements Runnable {
         ArrayList<String> cardURLs = new ArrayList<>();
         try {
             Element tbody = doc.select("tbody").first();
-            Elements titles = tbody.getElementsByClass("title");    
+            Elements titles = tbody.getElementsByClass("title");
             Elements links = titles.select("a");
             for (Element title : links) {
                 String url = title.attr("href");
-                cardURLs.add(constructCardURL(url));  
+                cardURLs.add(constructCardURL(url));
             }
         } catch (Exception e) {
             System.out.println("Error while connecting to set URL for " + setName);
         }
         return cardURLs;
     }
+
     public static String constructCardURL(String cardName) {
         return "https://www.pricecharting.com" + cardName;
     }
 
-    public static String getAllTheNames(String setURL, String setName){
+    public static String getAllTheNames(String setURL, String setName) {
         String temp = "";
-        try{
-        Document setDoc = Jsoup.connect(setURL).get(); 
-        Elements name = setDoc.getElementsByClass("chart_title");
-        if (!name.isEmpty()) {
-            for (Element chartTitle : name) {
-                Element h1 = chartTitle.select("h1").first();
-                if (h1 != null) {
-                    Element a = h1.select("a").first();
-                    if (a != null) {
-                        a.remove();
+        try {
+            Document setDoc = Jsoup.connect(setURL).get();
+            Elements name = setDoc.getElementsByClass("chart_title");
+            if (!name.isEmpty()) {
+                for (Element chartTitle : name) {
+                    Element h1 = chartTitle.select("h1").first();
+                    if (h1 != null) {
+                        Element a = h1.select("a").first();
+                        if (a != null) {
+                            a.remove();
+                        }
+                        temp = h1.text();
                     }
-                    temp = h1.text();
                 }
             }
+        } catch (IOException e) {
+            System.out.println("Error while connecting to set URL for " + setName);
         }
-    }catch (IOException e) {
-        System.out.println("Error while connecting to set URL for " + setName);
-    }
-    return temp;
+        return temp;
     }
 
     public static double getCardPrice(String url) throws IOException {
@@ -125,7 +129,7 @@ public class set implements Runnable {
             Element priceElement = doc.selectFirst(".price.js-price");
             if (priceElement != null) {
                 priceText = priceElement.text();
-                if (priceText.equals("-")) { 
+                if (priceText.equals("-")) {
                     return 0.00;
                 } else {
                     priceText = priceText.replace("$", "").replace(",", "");
@@ -133,9 +137,8 @@ public class set implements Runnable {
                 }
             }
         }
-        return 0.0; 
+        return 0.0;
     }
-    
 
     public static String getPicture(String url) throws IOException {
         Document doc = Jsoup.connect(url).get();
@@ -143,9 +146,9 @@ public class set implements Runnable {
         if (docName == null) {
             return "No title available";
         }
-    
+
         String name = docName.text();
-    
+
         // Look for an <img> tag with an 'alt' attribute that contains the card's name.
         Elements pictureElements = doc.select("img[alt]");
         for (Element pictureElement : pictureElements) {
@@ -153,10 +156,9 @@ public class set implements Runnable {
                 return pictureElement.attr("src");
             }
         }
-    
+
         return "No picture available";
     }
-    
 
     public static Document fetchWithRetry(String url, int retryCount) throws IOException {
         int attempt = 0;
@@ -166,12 +168,12 @@ public class set implements Runnable {
                 // Add delay between retries to avoid being rate-limited
                 if (attempt > 0) {
                     try {
-                        Thread.sleep(2000);  // Sleep for 2 seconds between attempts
+                        Thread.sleep(2000); // Sleep for 2 seconds between attempts
                     } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();
                     }
                 }
-                return Jsoup.connect(url).timeout(10000).get();  // Retry with timeout
+                return Jsoup.connect(url).timeout(10000).get(); // Retry with timeout
             } catch (IOException e) {
                 attempt++;
                 exception = e;
@@ -183,15 +185,14 @@ public class set implements Runnable {
         }
         return null;
     }
-    
-    
 
     public static Document loadPage(String url) {
         // Set path to chromedriver
-        System.setProperty("webdriver.chrome.driver", "C:\\Users\\wujus\\JavaCode\\web\\webscrap\\lib\\chromedriver-win64\\chromedriver.exe");
+        System.setProperty("webdriver.chrome.driver",
+                "C:\\Users\\wujus\\JavaCode\\web\\webscrap\\lib\\chromedriver-win64\\chromedriver.exe");
 
         WebDriver driver = new ChromeDriver();
-        Document doc = null; 
+        Document doc = null;
 
         try {
             driver.get(url);
@@ -210,7 +211,7 @@ public class set implements Runnable {
                 JavascriptExecutor js = (JavascriptExecutor) driver;
                 js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
 
-                Thread.sleep(100);  
+                Thread.sleep(100);
 
                 wait.until(ExpectedConditions.presenceOfElementLocated(By.tagName("title")));
 
@@ -219,7 +220,7 @@ public class set implements Runnable {
                 }
             }
             String pageSource = driver.getPageSource();
-            doc = Jsoup.parse(pageSource); 
+            doc = Jsoup.parse(pageSource);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -228,8 +229,9 @@ public class set implements Runnable {
         }
         return doc;
     }
+
     public void saveCardData(List<Card> cards) {
-        if(setName == "champion%27s-path"){
+        if (setName == "champion%27s-path") {
             setName = "champion-27s-path";
         }
         DATA_FILE = "webscrap/pokemon_data/" + setName + ".json";
@@ -245,7 +247,8 @@ public class set implements Runnable {
     public List<Card> loadCardData() {
         try (Reader reader = new FileReader(DATA_FILE)) {
             Gson gson = new Gson();
-            Type listType = new TypeToken<List<Card>>() {}.getType();
+            Type listType = new TypeToken<List<Card>>() {
+            }.getType();
             return gson.fromJson(reader, listType);
         } catch (IOException e) {
             return new ArrayList<>();
@@ -278,11 +281,12 @@ public class set implements Runnable {
         @Override
         public String toString() {
             return "Card{" +
-                    "name='" + name + '\'' +
-                    ", price=" + price +
-                    ", url='" + url + '\'' +
-                    ", id=" + id +
-                    ", picture='" + picture + '\'' +
+                    "cardName='" + name + '\'' +
+                    ", cardPrice=" + price +
+                    ", cardUrl='" + url + '\'' +
+                    ", cardId=" + id +
+                    ", cardPicture='" + picture + '\'' +
+                    ", cardNumberOfCards=" + 0 +
                     '}';
         }
     }
