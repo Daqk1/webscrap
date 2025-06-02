@@ -18,7 +18,7 @@ import java.util.concurrent.*;
 public class set implements Runnable {
     private String setName;
     private String DATA_FILE = "card_data.json";
-    private int globalCardId = 1; // This will keep track of the card ID
+    private int globalCardId = 0; // This will keep track of the card ID
     private List<Card> fetchedCards;
 
     public static void main(String[] args) {
@@ -45,7 +45,8 @@ public class set implements Runnable {
                         double price = getCardPrice(url);
                         String picture = getPicture(url);
                         int cardId = globalCardId++;
-                        fetchedCards.add(new Card(name, price, url, cardId, picture));
+                        Card card = new Card(name, price, url, cardId, picture, setName);
+                        fetchedCards.add(card);
                         // System.out.println("Fetched: " + name + " | $" + price + " | " + cardId + " |
                         // " + picture);
                     } catch (Exception e) {
@@ -200,7 +201,7 @@ public class set implements Runnable {
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(500));
             WebElement order = driver.findElement(By.id("sortForm"));
             Select select = new Select(order);
-            select.selectByVisibleText("Popularity");
+            select.selectByVisibleText("Card Number");
             WebElement imageOrNot = driver.findElement(By.name("show-images"));
             Select noImage = new Select(imageOrNot);
             noImage.selectByVisibleText("Hide Images");
@@ -264,15 +265,15 @@ public class set implements Runnable {
         private double cardPrice;
         private String cardUrl;
         private String cardPicture;
-        private int cardId;
+        private String cardId;
         private int cardNumberOfCards;
 
-        public Card(String name, double price, String url, int id, String picture) {
+        public Card(String name, double price, String url, int id, String picture, String setName) {
             this.cardName = name;
             this.cardPrice = price;
             this.cardUrl = url;
             this.cardPicture = picture;
-            this.cardId = id;
+            this.cardId = setName + "_" + Integer.toString(id);
             this.cardNumberOfCards = 0; // Default value, can be updated later if needed
         }
 

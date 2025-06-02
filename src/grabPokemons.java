@@ -30,7 +30,7 @@ public class grabPokemons {
                 // "deoxys",
                 // "emerald",
                 // "unseen-forces",
-                // "delta-species",
+                "delta-species",
                 // "legend-maker",
                 // "holon-phantoms",
                 // "crystal-guardians",
@@ -99,7 +99,7 @@ public class grabPokemons {
                 // "vivid-voltage",
                 // "shining-fates",
                 // "battle-styles",
-                // "chilling-reign",
+                "chilling-reign",
                 // "evolving-skies",
                 // "celebrations",
                 // "fusion-strike",
@@ -111,7 +111,7 @@ public class grabPokemons {
                 // "crown-zenith",
                 // "scarlet-&-violet",
                 // "paldea-evolved",
-                // "obsidian-flames",
+                "obsidian-flames",
                 // "scarlet-&-violet-151",
                 // "paradox-rift",
                 // "paldean-fates",
@@ -119,9 +119,9 @@ public class grabPokemons {
                 // "twilight-masquerade",
                 // "shrouded-fable",
                 // "stellar-crown",
-                "surging-sparks",
-                "prismatic-evolutions",
-                "journey-together"
+                "surging-sparks"
+                // "prismatic-evolutions",
+                // "journey-together"
         };
 
         ExecutorService executor = Executors.newFixedThreadPool(5);
