@@ -36,8 +36,9 @@ public class set implements Runnable {
             fetchedCards = Collections.synchronizedList(new ArrayList<>());
 
             // Use multithreading to fetch data
-            ExecutorService executor = Executors.newFixedThreadPool(10);
+            ExecutorService executor = Executors.newFixedThreadPool(1);
             ArrayList<String> allCardURLs = getAllCardsInASet(setDoc, setName);
+            System.out.println(setName + " | " + allCardURLs.size());
             for (String url : allCardURLs) {
                 executor.submit(() -> {
                     try {
@@ -47,8 +48,7 @@ public class set implements Runnable {
                         int cardId = globalCardId++;
                         Card card = new Card(name, price, url, cardId, picture, setName);
                         fetchedCards.add(card);
-                        // System.out.println("Fetched: " + name + " | $" + price + " | " + cardId + " |
-                        // " + picture);
+                        System.out.println("Fetched: " + name + " | $" + price + " | " + cardId + " | " + picture);
                     } catch (Exception e) {
                         // System.out.println("Error fetching card at: " + url + " | " +
                         // e.getMessage());
@@ -190,7 +190,7 @@ public class set implements Runnable {
     public static Document loadPage(String url) {
         // Set path to chromedriver
         System.setProperty("webdriver.chrome.driver",
-                "C:\\Users\\wujus\\JavaCode\\web\\webscrap\\lib\\chromedriver-win64\\chromedriver.exe");
+                "lib\\chromedriver-win64\\chromedriver.exe");
 
         WebDriver driver = new ChromeDriver();
         Document doc = null;
@@ -202,9 +202,9 @@ public class set implements Runnable {
             WebElement order = driver.findElement(By.id("sortForm"));
             Select select = new Select(order);
             select.selectByVisibleText("Card Number");
-            WebElement imageOrNot = driver.findElement(By.name("show-images"));
-            Select noImage = new Select(imageOrNot);
-            noImage.selectByVisibleText("Hide Images");
+            // WebElement imageOrNot = driver.findElement(By.name("show-images"));
+            // Select noImage = new Select(imageOrNot);
+            // noImage.selectByVisibleText("Hide Images");
             boolean moreItemsLoaded = true;
             int i = 0;
             while (moreItemsLoaded) {
@@ -235,7 +235,7 @@ public class set implements Runnable {
         if (setName == "champion%27s-path") {
             setName = "champion-27s-path";
         }
-        DATA_FILE = "webscrap/pokemon_data/" + setName + ".json";
+        DATA_FILE = "pokemon_data/" + setName + ".json";
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(DATA_FILE))) {
             Gson gson = new Gson();
             gson.toJson(cards, writer);
