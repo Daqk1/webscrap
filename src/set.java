@@ -404,10 +404,9 @@ public class set implements Runnable {
     }
 
     public void saveCardData(List<Card> cards) {
-        if (setName == "champion%27s-path") {
-            setName = "champion-27s-path";
-        }
-        DATA_FILE = "pokemon_data/" + setName + ".json";
+        // Clean the set name for file naming
+        String cleanSetName = cleanSetNameForFile(setName);
+        DATA_FILE = "pokemon_data/" + cleanSetName + ".json";
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(DATA_FILE))) {
             Gson gson = new Gson();
             gson.toJson(cards, writer);
@@ -417,8 +416,31 @@ public class set implements Runnable {
         }
     }
 
+    // Helper method to clean set name for file naming
+    private String cleanSetNameForFile(String setName) {
+        if (setName == null) {
+            return "unknown-set";
+        }
+
+        String cleaned = setName;
+
+        // Handle special cases
+        if (cleaned.equals("champion%27s-path")) {
+            cleaned = "champion-27s-path";
+        }
+
+        // Replace & with and
+        cleaned = cleaned.replace("&", "and");
+
+        return cleaned;
+    }
+
     public List<Card> loadCardData() {
-        try (Reader reader = new FileReader(DATA_FILE)) {
+        // Use the same cleaning logic for loading
+        String cleanSetName = cleanSetNameForFile(setName);
+        String dataFile = "pokemon_data/" + cleanSetName + ".json";
+
+        try (Reader reader = new FileReader(dataFile)) {
             Gson gson = new Gson();
             Type listType = new TypeToken<List<Card>>() {
             }.getType();
