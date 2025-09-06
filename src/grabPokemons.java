@@ -122,10 +122,13 @@ public class grabPokemons {
                 "stellar-crown",
                 "surging-sparks",
                 "prismatic-evolutions",
-                "journey-together"
+                "journey-together",
+                "destined-rivals",
+                "black-bolt",
+                "white-flare"
         };
 
-        ExecutorService executor = Executors.newFixedThreadPool(1);
+        ExecutorService executor = Executors.newFixedThreadPool(5);
 
         for (String setName : pokemonSets) {
             set set = new set();

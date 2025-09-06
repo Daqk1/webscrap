@@ -35,32 +35,60 @@ public class set implements Runnable {
             Document setDoc = loadPage(changeURL(setName));
             fetchedCards = Collections.synchronizedList(new ArrayList<>());
 
-            // Use multithreading to fetch data
-            ExecutorService executor = Executors.newFixedThreadPool(1);
+            // Use multithreading to fetch data while maintaining order
+            ExecutorService executor = Executors.newFixedThreadPool(10);
             ArrayList<String> allCardURLs = getAllCardsInASet(setDoc, setName);
-            System.out.println(setName + " | " + allCardURLs.size());
-            for (String url : allCardURLs) {
-                executor.submit(() -> {
+            System.out.println(setName + " | " + allCardURLs.size() + " | " + allCardURLs.getLast());
+
+            // Create a list to store results in order
+            List<CompletableFuture<Card>> futures = new ArrayList<>();
+
+            for (int i = 0; i < allCardURLs.size(); i++) {
+                final String url = allCardURLs.get(i);
+
+                CompletableFuture<Card> future = CompletableFuture.supplyAsync(() -> {
                     try {
-                        String name = getAllTheNames(url, setName);
-                        double price = getCardPrice(url);
-                        String picture = getPicture(url);
-                        int cardId = globalCardId++;
-                        Card card = new Card(name, price, url, cardId, picture, setName);
-                        fetchedCards.add(card);
-                        System.out.println("Fetched: " + name + " | $" + price + " | " + cardId + " | " + picture);
+                        // Fetch all data in a single request instead of multiple separate calls
+                        CardData cardData = fetchCardData(url, setName);
+                        if (cardData != null) {
+                            int cardId = globalCardId++;
+                            Card card = new Card(cardData.name, cardData.price, url, cardId, cardData.picture, setName);
+                            System.out.println("Fetched: " + cardData.name + " | $" + cardData.price + " | " + cardId
+                                    + " | " + cardData.picture);
+                            return card;
+                        }
+                        return null;
                     } catch (Exception e) {
-                        // System.out.println("Error fetching card at: " + url + " | " +
-                        // e.getMessage());
+                        System.out.println("Error fetching card at: " + url + " | " + e.getMessage());
+                        return null;
                     }
-                });
+                }, executor);
+
+                futures.add(future);
+            }
+
+            // Wait for all futures to complete and collect results in order
+            for (CompletableFuture<Card> future : futures) {
+                try {
+                    Card card = future.get(30, TimeUnit.SECONDS); // 30 second timeout per card
+                    if (card != null) {
+                        fetchedCards.add(card);
+                    }
+                } catch (Exception e) {
+                    System.out.println("Error waiting for card completion: " + e.getMessage());
+                }
             }
 
             executor.shutdown();
             try {
-                executor.awaitTermination(5, TimeUnit.MINUTES);
+                if (!executor.awaitTermination(5, TimeUnit.MINUTES)) {
+                    System.out.println("Some tasks did not complete within timeout, forcing shutdown...");
+                    executor.shutdownNow();
+                }
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                System.out.println("Executor was interrupted, forcing shutdown...");
+                executor.shutdownNow();
+                Thread.currentThread().interrupt();
             }
             saveCardData(fetchedCards);
             cards = fetchedCards;
@@ -84,20 +112,81 @@ public class set implements Runnable {
         ArrayList<String> cardURLs = new ArrayList<>();
         try {
             Element tbody = doc.select("tbody").first();
+            if (tbody == null) {
+                System.out.println("Warning: No tbody found in document");
+                return cardURLs;
+            }
+
             Elements titles = tbody.getElementsByClass("title");
             Elements links = titles.select("a");
+            System.out.println("Found " + links.size() + " card links in the document");
+
             for (Element title : links) {
                 String url = title.attr("href");
                 cardURLs.add(constructCardURL(url));
             }
+
+            System.out.println("Successfully extracted " + cardURLs.size() + " card URLs");
         } catch (Exception e) {
-            System.out.println("Error while connecting to set URL for " + setName);
+            System.out.println("Error while connecting to set URL for " + setName + ": " + e.getMessage());
         }
         return cardURLs;
     }
 
     public static String constructCardURL(String cardName) {
         return "https://www.pricecharting.com" + cardName;
+    }
+
+    // Optimized method to fetch all card data in a single request
+    public static CardData fetchCardData(String url, String setName) {
+        try {
+            Document doc = fetchWithRetry(url, 2);
+            if (doc == null) {
+                return null;
+            }
+
+            // Extract name
+            String name = "";
+            Elements nameElements = doc.getElementsByClass("chart_title");
+            if (!nameElements.isEmpty()) {
+                for (Element chartTitle : nameElements) {
+                    Element h1 = chartTitle.select("h1").first();
+                    if (h1 != null) {
+                        Element a = h1.select("a").first();
+                        if (a != null) {
+                            a.remove();
+                        }
+                        name = h1.text();
+                    }
+                }
+            }
+
+            // Extract price
+            double price = 0.00;
+            Element priceElement = doc.selectFirst(".price.js-price");
+            if (priceElement != null) {
+                String priceText = priceElement.text();
+                if (!priceText.equals("-")) {
+                    priceText = priceText.replace("$", "").replace(",", "");
+                    price = Double.parseDouble(priceText);
+                }
+            }
+
+            // Extract picture
+            String picture = "No picture available";
+            Elements pictureElements = doc.select("img[alt]");
+            for (Element pictureElement : pictureElements) {
+                if (pictureElement.attr("alt").contains(name)) {
+                    picture = pictureElement.attr("src");
+                    break;
+                }
+            }
+
+            return new CardData(name, price, picture);
+        } catch (Exception e) {
+            System.out.println("Error fetching card data from: " + url);
+            return null;
+        }
     }
 
     public static String getAllTheNames(String setURL, String setName) {
@@ -124,7 +213,7 @@ public class set implements Runnable {
     }
 
     public static double getCardPrice(String url) throws IOException {
-        Document doc = fetchWithRetry(url, 3);
+        Document doc = fetchWithRetry(url, 2); // Reduced retry count
         String priceText = "";
         if (doc != null) {
             Element priceElement = doc.selectFirst(".price.js-price");
@@ -138,11 +227,15 @@ public class set implements Runnable {
                 }
             }
         }
-        return 0.0;
+        return 0.00;
     }
 
     public static String getPicture(String url) throws IOException {
-        Document doc = Jsoup.connect(url).get();
+        Document doc = fetchWithRetry(url, 2); // Use retry logic and reuse connection
+        if (doc == null) {
+            return "No picture available";
+        }
+
         Element docName = doc.selectFirst(".chart_title");
         if (docName == null) {
             return "No title available";
@@ -169,12 +262,15 @@ public class set implements Runnable {
                 // Add delay between retries to avoid being rate-limited
                 if (attempt > 0) {
                     try {
-                        Thread.sleep(2000); // Sleep for 2 seconds between attempts
+                        Thread.sleep(1000); // Reduced sleep time to 1 second
                     } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();
                     }
                 }
-                return Jsoup.connect(url).timeout(10000).get(); // Retry with timeout
+                return Jsoup.connect(url)
+                        .timeout(5000) // Reduced timeout to 5 seconds
+                        .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
+                        .get();
             } catch (IOException e) {
                 attempt++;
                 exception = e;
@@ -190,36 +286,93 @@ public class set implements Runnable {
     public static Document loadPage(String url) {
         // Set path to chromedriver
         System.setProperty("webdriver.chrome.driver",
-                "lib\\chromedriver-win64\\chromedriver.exe");
+                "lib\\chromedriver-win64\\chromedriver-win64\\chromedriver.exe");
 
-        WebDriver driver = new ChromeDriver();
+        // Configure Chrome options for better performance
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--headless"); // Run in headless mode for better performance
+        options.addArguments("--no-sandbox");
+        options.addArguments("--disable-dev-shm-usage");
+        options.addArguments("--disable-gpu");
+        options.addArguments("--window-size=1920,1080");
+        options.addArguments("--disable-images"); // Disable image loading for faster page loads
+        options.addArguments("--disable-javascript"); // Disable JS if not needed for data extraction
+
+        WebDriver driver = new ChromeDriver(options);
         Document doc = null;
 
         try {
             driver.get(url);
 
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(500));
+            // WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30)); //
+            // Reduced wait time
             WebElement order = driver.findElement(By.id("sortForm"));
             Select select = new Select(order);
             select.selectByVisibleText("Card Number");
-            // WebElement imageOrNot = driver.findElement(By.name("show-images"));
-            // Select noImage = new Select(imageOrNot);
-            // noImage.selectByVisibleText("Hide Images");
-            boolean moreItemsLoaded = true;
-            int i = 0;
-            while (moreItemsLoaded) {
-                i++;
-                JavascriptExecutor js = (JavascriptExecutor) driver;
+
+            // Advanced scrolling algorithm for dynamic content loading
+            JavascriptExecutor js = (JavascriptExecutor) driver;
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+            int lastItemCount = 0;
+            int stableCount = 0;
+            int maxIterations = 300; // Increased for large sets
+            int iteration = 0;
+
+            System.out.println("Starting dynamic content loading...");
+
+            // First, get initial count
+            lastItemCount = getCurrentItemCount(driver);
+            System.out.println("Initial item count: " + lastItemCount);
+
+            while (stableCount < 10 && iteration < maxIterations) { // Need 10 stable iterations
+                iteration++;
+
+                // Scroll to bottom with multiple scroll attempts
+                js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
+                Thread.sleep(200);
+                js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
+                Thread.sleep(200);
                 js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
 
-                Thread.sleep(100);
+                // Wait for potential new content to load
+                Thread.sleep(1500); // Increased wait time for content to load
 
-                wait.until(ExpectedConditions.presenceOfElementLocated(By.tagName("title")));
-
-                if (i == 100) {
-                    moreItemsLoaded = false;
+                // Try to wait for new content to appear
+                try {
+                    wait.until(ExpectedConditions.presenceOfElementLocated(By.tagName("tbody")));
+                } catch (Exception e) {
+                    // Continue if wait times out
                 }
+
+                // Count current items in the table
+                int currentItemCount = getCurrentItemCount(driver);
+
+                if (currentItemCount > lastItemCount) {
+                    // New items loaded
+                    stableCount = 0;
+                    int newItems = currentItemCount - lastItemCount;
+                    lastItemCount = currentItemCount;
+                    System.out.println("Iteration " + iteration + ": Found " + currentItemCount + " items (loaded "
+                            + newItems + " new items)");
+                } else {
+                    // No new items loaded
+                    stableCount++;
+                    System.out.println(
+                            "Iteration " + iteration + ": No new items loaded (stable count: " + stableCount + "/10)");
+                }
+
+                // Additional wait to ensure all content is loaded
+                Thread.sleep(500);
             }
+
+            if (stableCount >= 10) {
+                System.out.println("Scrolling completed! Final item count: " + lastItemCount);
+            } else {
+                System.out.println(
+                        "Reached maximum iterations (" + maxIterations + "). Final item count: " + lastItemCount);
+            }
+
             String pageSource = driver.getPageSource();
             doc = Jsoup.parse(pageSource);
 
@@ -229,6 +382,25 @@ public class set implements Runnable {
             driver.quit();
         }
         return doc;
+    }
+
+    // Helper method to count current items in the table
+    private static int getCurrentItemCount(WebDriver driver) {
+        try {
+            JavascriptExecutor js = (JavascriptExecutor) driver;
+            // Count the number of rows in the tbody
+            Long count = (Long) js.executeScript(
+                    "var tbody = document.querySelector('tbody');" +
+                            "if (tbody) {" +
+                            "  return tbody.querySelectorAll('tr').length;" +
+                            "} else {" +
+                            "  return 0;" +
+                            "}");
+            return count.intValue();
+        } catch (Exception e) {
+            System.out.println("Error counting items: " + e.getMessage());
+            return 0;
+        }
     }
 
     public void saveCardData(List<Card> cards) {
@@ -291,6 +463,19 @@ public class set implements Runnable {
                     ", cardPicture='" + cardPicture + '\'' +
                     ", cardNumberOfCards=" + cardNumberOfCards +
                     '}';
+        }
+    }
+
+    // Helper class to hold card data from a single request
+    static class CardData {
+        public final String name;
+        public final double price;
+        public final String picture;
+
+        public CardData(String name, double price, String picture) {
+            this.name = name;
+            this.price = price;
+            this.picture = picture;
         }
     }
 }
