@@ -15,7 +15,7 @@ import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.*;
 
-public class set implements Runnable {
+public class jpset implements Runnable {
     private String setName;
     private String DATA_FILE = "card_data.json";
     private int globalCardId = 0; // This will keep track of the card ID
@@ -28,9 +28,6 @@ public class set implements Runnable {
         // Always fetch fresh data from website
         System.out.println("Fetching fresh data from website...");
 
-        if (setName == "champion-27s-path") {
-            setName = "champion%27s-path";
-        }
         Document setDoc = loadPage(changeURL(setName));
         fetchedCards = Collections.synchronizedList(new ArrayList<>());
 
@@ -404,7 +401,7 @@ public class set implements Runnable {
     public void saveCardData(List<Card> cards) {
         // Clean the set name for file naming
         String cleanSetName = cleanSetNameForFile(setName);
-        DATA_FILE = "pokemon_data/" + cleanSetName + ".json";
+        DATA_FILE = "jppokemon_data/" + cleanSetName + ".json";
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(DATA_FILE))) {
             Gson gson = new Gson();
             gson.toJson(cards, writer);
@@ -422,21 +419,14 @@ public class set implements Runnable {
 
         String cleaned = setName;
 
-        // Handle special cases
-        if (cleaned.equals("champion%27s-path")) {
-            cleaned = "champion-27s-path";
-        }
-
-        // Replace & with and
         cleaned = cleaned.replace("&", "and");
 
         return cleaned;
     }
 
     public List<Card> loadCardData() {
-        // Use the same cleaning logic for loading
         String cleanSetName = cleanSetNameForFile(setName);
-        String dataFile = "pokemon_data/" + cleanSetName + ".json";
+        String dataFile = "jppokemon_data/" + cleanSetName + ".json";
 
         try (Reader reader = new FileReader(dataFile)) {
             Gson gson = new Gson();
