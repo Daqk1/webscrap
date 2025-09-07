@@ -402,6 +402,14 @@ public class jpset implements Runnable {
         // Clean the set name for file naming
         String cleanSetName = cleanSetNameForFile(setName);
         DATA_FILE = "jppokemon_data/" + cleanSetName + ".json";
+
+        // Ensure the jppokemon_data directory exists
+        File directory = new File("jppokemon_data");
+        if (!directory.exists()) {
+            directory.mkdirs();
+            System.out.println("Created jppokemon_data directory");
+        }
+
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(DATA_FILE))) {
             Gson gson = new Gson();
             gson.toJson(cards, writer);
