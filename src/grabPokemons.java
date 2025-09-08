@@ -104,7 +104,7 @@ public class grabPokemons {
                 // "evolving-skies",
                 // "celebrations",
                 // "fusion-strike",
-                "brilliant-stars",
+                // "brilliant-stars",
                 // "astral-radiance",
                 // "go",
                 // "lost-origin",
@@ -121,12 +121,12 @@ public class grabPokemons {
                 // "shrouded-fable",
                 // "stellar-crown",
                 // "surging-sparks",
-                // "prismatic-evolutions",
-                // "journey-together",
-                // "destined-rivals",
-                // "black-bolt",
-                // "white-flare",
-                // "promo"
+                "prismatic-evolutions",
+                "journey-together",
+                "destined-rivals",
+                "black-bolt",
+                "white-flare",
+                "promo"
         };
 
         String[] jppokemonSets = {
@@ -219,9 +219,9 @@ public class grabPokemons {
                 // "japanese-mega-symphonia",
                 // "japanese-shiny-treasure-ex",
                 // "japanese-battle-partners",
-
-                "japanese-night-wanderer",
-                "japanese-cyber-judge",
+                // "japanese-night-wanderer",
+                // "japanese-cyber-judge",
+                "japanese-terastal-festival"
 
         };
 
